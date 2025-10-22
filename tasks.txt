@@ -1,0 +1,7 @@
+1) Load complete backend from the previous source code. - DONE
+2) Build the UI using customTkinter. - DONE
+3) Test the current working. - DONE
+4) Modularize the code.
+5) Implement Batch processing.
+6) Implement word wrap.
+7) Test and try the implementation of double loaded ML model(not priority, just to improve performance. Take device specs and performance into consideration.)

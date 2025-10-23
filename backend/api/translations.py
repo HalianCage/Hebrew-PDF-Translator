@@ -2,45 +2,38 @@
 # ALL API ENDPOINTS FILE
 # ==============================================================================
 import uuid
-import tempfile
 import logging
 import os
-from fastapi import APIRouter, UploadFile, File, BackgroundTasks, HTTPException
+from pydantic import BaseModel
+from typing import List
+from fastapi import APIRouter, BackgroundTasks
 from fastapi.responses import FileResponse, JSONResponse
+from utils.pdf_queue_handler import start_serial_processing
 
 from core import job_state as job_state
-from services.pdf_translator import run_translation_task
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
+
+
+# Defining pydantic base model
+class FilePathRequest(BaseModel):
+    paths: List[str]
 
 
 # ==============================================================================
 # ENDPOINT TO START THE TRANSLATION TASK FOR EACH PDF
 # ==============================================================================
 @router.post("/start-translation/")
-async def start_translation(background_tasks: BackgroundTasks, file: UploadFile = File(...)):
+async def start_translation(background_tasks: BackgroundTasks, request: FilePathRequest):
 
     """Endpoint to start the translation job."""
 
     logger.info('Translation API has been hit...')
 
     job_id = str(uuid.uuid4())
-    
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp_file:
-        tmp_file.write(await file.read())
-        pdf_path = tmp_file.name
 
-    # logger.info('Completed temporarily opening the file...')
-
-
-    job_state.create_job(job_id)
-    # jobs[job_id] = {"status": "starting", "result_path": None, "error": None}
-    logger.info(f"Job {job_id}: Created and saved file to {pdf_path}")
-
-    logger.info("Starting the translation task...")
-
-    background_tasks.add_task(run_translation_task, job_id, pdf_path)
+    background_tasks.add_task(start_serial_processing, request.paths, job_id)
     
     return {"job_id": job_id}
 
@@ -82,4 +75,4 @@ async def download_result(job_id: str):
     
     logger.info(f"Job {job_id}: Download requested for {file_path}")
 
-    return FileResponse(file_path, media_type='application/pdf', filename=filename)
+    return FileResponse(file_path, media_type='application/zip', filename=filename)

@@ -54,8 +54,8 @@ def run_translation_task(job_id: str, pdf_path: str):
             translated_doc.save(output_path)
             translated_doc.close()
 
-        job_state.set_job_result(job_id, output_path)
-        logger.info(f"Job {job_id}: Processing complete. Result at {output_path}")
+
+        return output_path
 
     except Exception as e:
         logger.error(f"Job {job_id}: Task failed.", exc_info=True)

@@ -47,7 +47,7 @@ class App(ctk.CTk):
         # --- 1. File Selection ---
         self.button_select = ctk.CTkButton(
             self.main_frame, 
-            text="1. Select PDF File", 
+            text="1. Select PDF File(s)", 
             command=self.select_file,
             font=ctk.CTkFont(size=14),
             height=40,
@@ -125,10 +125,10 @@ class App(ctk.CTk):
         if self.is_processing:
             return
             
-        file_path = filedialog.askopenfilename(filetypes=[("PDF Documents", "*.pdf")])
+        file_path = filedialog.askopenfilenames(filetypes=[("PDF Documents", "*.pdf")])
         if file_path:
             self.selected_file_path = file_path
-            self.label_file.configure(text=os.path.basename(file_path), text_color="white")
+            self.label_file.configure(text=f"{len(file_path)} files selected", text_color="white")
             self.button_translate.configure(state="normal")
             self.label_status.configure(text="Status: Ready to translate", text_color="white")
 
@@ -138,13 +138,14 @@ class App(ctk.CTk):
             return
 
         self.set_processing_state(True)
-        self.label_status.configure(text="Status: Uploading file...")
+        self.label_status.configure(text="Status: Uploading files...")
         
         try:
-            with open(self.selected_file_path, "rb") as f:
-                files = {"file": (os.path.basename(self.selected_file_path), f, "application/pdf")}
+            data_to_send = {
+                "paths": self.selected_file_path
+            }
                 
-                response = requests.post(f"{BASE_URL}/translate/start-translation/", files=files, timeout=30)
+            response = requests.post(f"{BASE_URL}/translate/start-translation/", json=data_to_send, timeout=30)
             
             if response.status_code == 200:
                 self.current_job_id = response.json().get("job_id")
@@ -194,9 +195,8 @@ class App(ctk.CTk):
     def download_file(self):
         """Prompts to save the file, then downloads from the /download/ endpoint."""
         save_path = filedialog.asksaveasfilename(
-            defaultextension=".pdf",
-            filetypes=[("PDF Documents", "*.pdf")],
-            initialfile=os.path.basename(self.selected_file_path).replace(".pdf", "_translated.pdf")
+            defaultextension=".zip",
+            filetypes=[("Zip files", "*.zip")],
         )
         
         if not save_path:

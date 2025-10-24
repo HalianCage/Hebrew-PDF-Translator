@@ -5,17 +5,19 @@
 3) Test the current working. - DONE
 4) Modularize the code. - DONE
 5) Implement Batch processing. - DONE
-6) Check out table extracting python packages.
-7) Package and test the application exe.
-8)How to change the python script icon that shows in the task bar. Also, change the main icon in the top left of application window.
-9) Implement word wrap.
-10) Build and Integrate the new translation model.
+6) The tool currently takes the input pdfs and makes them into the output. Make it to create a copy and use that copy.
+7) Check out table extracting python packages.
+8) Package and test the application exe.
+9)How to change the python script icon that shows in the task bar. Also, change the main icon in the top left of application window.
+10) Implement word wrap.
+11) Build and Integrate the new translation model.
 
 
 
 ---Non-requirement Features For Implementation---
 
-1) Integrate PDF error robustness into the process.
+1) Implement dictionary feature before translation model to improve processing time.
+2) Integrate PDF error robustness into the process.
 2) Remove model loading before translation, start it in the background parallel to the user selecting the files, and then maybe even show it in the loading.
 3) Test and try the implementation of double loaded ML model(not priority, just to improve performance. Take device specs and performance into consideration.)
 4) Implement a feature such that after each successful run, clear out the backend.log. This will help to keep the backend logs only for when any error arises. - LET'S SEE AFTERWARDS

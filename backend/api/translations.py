@@ -8,8 +8,8 @@ from pydantic import BaseModel
 from typing import List
 from fastapi import APIRouter, BackgroundTasks
 from fastapi.responses import FileResponse, JSONResponse
-from utils.pdf_queue_handler import start_serial_processing
 
+from utils.zip_and_queue_handler import start_serial_processing, cleanup_zip_file
 from core import job_state as job_state
 
 logger = logging.getLogger(__name__)
@@ -64,15 +64,27 @@ async def get_job_status(job_id: str):
 async def download_result(job_id: str):
 
     """Endpoint to download the final translated PDF."""
+    try:
+        job = job_state.get_job(job_id)
 
-    job = job_state.get_job(job_id)
+        if job is None or job.get("status") != "complete":
+            return JSONResponse(status_code=404, content={"error": "File not ready or job not found"})
+        
+        file_path = job.get("result_path")
 
-    if job is None or job["status"] != "complete":
-        return JSONResponse(status_code=404, content={"error": "File not ready or job not found"})
-    
-    file_path = job["result_path"]
-    filename = os.path.basename(file_path)
-    
-    logger.info(f"Job {job_id}: Download requested for {file_path}")
+        if not os.path.exists(file_path):
+            return JSONResponse(status_code=404, content={"error": "Output zip could not be found. PLease try again."})
 
-    return FileResponse(file_path, media_type='application/zip', filename=filename)
+        filename = os.path.basename(file_path)
+        
+        logger.info(f"Job {job_id}: Download requested for {file_path}")
+
+        return FileResponse(
+            file_path, 
+            media_type='application/zip', 
+            filename=filename,
+            background=BackgroundTasks([lambda: cleanup_zip_file(file_path)])
+            )
+    except Exception as e:
+        logger.error(f"Some error occured while downloading the zip file: {e}")
+        return JSONResponse(status_code=404, content={"error": "Some error occured while downloading the zip file."})

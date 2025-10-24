@@ -61,3 +61,14 @@ async def start_serial_processing(pdf_list: list, job_id: str):
                     logger.debug(f"Job {job_id}: Removed {path}")
                 except Exception as e:
                     logger.error(f"Job {job_id}: Failed to remove {path}. {e}")
+
+
+
+def cleanup_zip_file(zip_path: str):
+    
+    try:
+        if os.path.exists(zip_path):
+            os.remove(zip_path)
+            logger.info(f"Cleaned up backend zip file at {zip_path}")
+    except Exception as e:
+        logger.error(f"Error cleaning up zip file at {zip_path}")

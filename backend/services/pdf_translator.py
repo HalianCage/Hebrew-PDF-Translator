@@ -63,5 +63,3 @@ def run_translation_task(job_id: str, pdf_path: str):
     finally:
         if 'doc' in locals() and not doc.is_closed:
             doc.close()
-        if os.path.exists(pdf_path):
-            os.remove(pdf_path)

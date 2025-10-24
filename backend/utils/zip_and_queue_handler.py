@@ -28,22 +28,24 @@ async def start_serial_processing(pdf_list: list, job_id: str):
             processed_pdf_paths.append(output_path)
 
         
-        ZIP_DIR = "output_zips"
-        os.makedirs(ZIP_DIR, exist_ok=True)
-        zip_file_path = os.path.join(ZIP_DIR, f"{job_id}.zip")
+        # ZIP_DIR = "output_zips"
+        # os.makedirs(ZIP_DIR, exist_ok=True)
+        # zip_file_path = os.path.join(ZIP_DIR, f"{job_id}.zip")
+
+        zip_file = f"{job_id}.zip"
 
         logger.info(f"Job {job_id}: Zipping {len(processed_pdf_paths)} files...")
 
-        with zipfile.ZipFile(zip_file_path, 'w') as zf:
+        with zipfile.ZipFile(zip_file, 'w') as zf:
             for file_path in processed_pdf_paths:
 
                 file_name = os.path.basename(file_path)
                 zf.write(file_path, arcname=file_name)
 
 
-        logger.info(f"Zip file {zip_file_path} created successfully")
+        logger.info(f"Zip file {zip_file} created successfully")
 
-        job_state.set_job_result(job_id, zip_file_path)
+        job_state.set_job_result(job_id, zip_file)
         # logger.info(f"Job {job_id}: Processing complete. Result at {output_path}")
 
     except Exception as e:
@@ -64,7 +66,7 @@ async def start_serial_processing(pdf_list: list, job_id: str):
 
 
 
-def cleanup_zip_file(zip_path: str):
+async def cleanup_zip_file(zip_path: str):
     
     try:
         if os.path.exists(zip_path):

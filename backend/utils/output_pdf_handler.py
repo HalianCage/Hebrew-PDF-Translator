@@ -77,14 +77,27 @@ def create_translated_doc_in_memory(doc, enriched_translated_data):
                 original_bbox = fitz.Rect(item["bbox"])
                 display_text = item.get("display_text", item.get("english_translation", ""))
                 if display_text:
-                    output_page.draw_rect(original_bbox, color=(1, 1, 1), fill=(1, 1, 1), overlay=True, )
+        
                     best_fsize = get_optimal_fontsize(original_bbox, display_text)
-                    leftover = output_page.insert_textbox(
-                        original_bbox, display_text, fontsize=best_fsize, fontname="helv",
-                        color=(0, 0, 0), align=fitz.TEXT_ALIGN_LEFT, overlay=True
-                    )
+
+                    leftover = -1
+                    font_size = best_fsize
+
+                    while leftover<0 and font_size >= 4:
+
+                        # Draw the rectangle
+                        output_page.draw_rect(original_bbox, color=(1, 1, 1), fill=(1, 1, 1), overlay=True, )
+
+                        # Insert the text
+                        leftover = output_page.insert_textbox(
+                            original_bbox, display_text, fontsize=font_size, fontname="helv",
+                            color=(0, 0, 0), align=fitz.TEXT_ALIGN_CENTER, overlay=True
+                        )
+
+                        font_size -= 1
 
                     print(f"display_text:{display_text}, leftover: {leftover}")
+                    
     return output_doc
 
 

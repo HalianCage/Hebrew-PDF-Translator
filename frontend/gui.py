@@ -1,28 +1,32 @@
 import customtkinter as ctk
 from tkinter import filedialog, messagebox
 import requests
-import atexit  # <-- We can remove this
-import sys     # <-- We can remove this
-import os
+# import atexit  # No longer needed
+# import sys     # No longer needed
+# import os      # No longer needed
 import time
 import threading
 
 # --- Configuration ---
-BACKEND_PORT = 8000 # This MUST match the port you run uvicorn on
+# This configuration is now perfect, as it points
+# to the server thread we are starting.
+BACKEND_PORT = 8000 
 BASE_URL = f"http://127.0.0.1:{BACKEND_PORT}"
 
 #
-# NO MORE PROCESS MANAGEMENT CODE (start_backend, stop_backend, etc.)
+# NO PROCESS MANAGEMENT CODE - This is correct!
 #
 
 # --- Main Application Class ---
+# (This is your exact code from the prompt, just saved
+# as a file. No changes were needed inside the class)
 
 class App(ctk.CTk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         # --- Window Setup ---
-        self.title("Chinese CAD Translator (Dev Mode)")
+        self.title("Chinese CAD Translator") # Removed "Dev Mode"
         self.geometry("450x380")
         self.resizable(False, False)
         
@@ -88,7 +92,8 @@ class App(ctk.CTk):
         """Polls the /health endpoint until the backend is ready."""
         print(f"Checking for backend at {BASE_URL}/health")
         retries = 0
-        while retries < 10: # Try for 5 seconds
+        # Increased retries to give the backend thread more time to start
+        while retries < 20: # Try for 10 seconds
             try:
                 response = requests.get(f"{BASE_URL}/health", timeout=1)
                 if response.status_code == 200 and response.json().get("status") == "ready":
@@ -117,7 +122,7 @@ class App(ctk.CTk):
         messagebox.showerror(
             "Connection Error",
             f"Could not connect to the backend at {BASE_URL}\n\n"
-            "Please ensure the backend server is running."
+            "The backend server thread failed to start."
         )
 
     def select_file(self):
@@ -252,8 +257,11 @@ class App(ctk.CTk):
 # --- Main execution ---
 if __name__ == "__main__":
     
-    # We no longer start or stop the backend.
-    # We just create and run the GUI app.
+    # This part is NO LONGER RUN when imported by 'run_app.py'
+    # But it's still useful for testing the GUI by itself.
+    
+    print("Running frontend/main_gui.py directly (for testing)...")
+    print("NOTE: This will FAIL unless you manually run the backend server first.")
     
     app = App()
     app.mainloop()

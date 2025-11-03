@@ -18,3 +18,8 @@ backend/core/__pycache__
 backend/model/__pycache__
 backend/services/__pycache__
 backend/utils/__pycache__
+
+build/
+dist/
+
+backend.log

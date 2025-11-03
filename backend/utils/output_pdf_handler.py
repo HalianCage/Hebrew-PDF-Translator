@@ -96,7 +96,7 @@ def create_translated_doc_in_memory(doc, enriched_translated_data):
 
                         font_size -= 1
 
-                    print(f"display_text:{display_text}, leftover: {leftover}")
+                    # print(f"display_text:{display_text}, leftover: {leftover}")
                     
     return output_doc
 

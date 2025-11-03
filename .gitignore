@@ -22,3 +22,6 @@ backend/utils/__pycache__
 frontend/__pycache__
 
 backend.log
+
+build/
+dist/

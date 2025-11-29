@@ -32,19 +32,19 @@ def run_translation_task(job_id: str, pdf_path: str):
         all_text = extract_text_with_location(doc)
 
         # Extract bottom right table text using pdfplumber
-        brt = extract_table_cells(pdf_bytes, 665, 665, 1180, 830)
+        # brt = extract_table_cells(pdf_bytes, 665, 665, 1180, 830)
 
         # Extract extract left side table text using pdfplumber
-        lsd = extract_table_cells(pdf_bytes, 665, 665, 1180, 830)
+        # lsd = extract_table_cells(pdf_bytes, 665, 665, 1180, 830)
 
         # Remove doubly extracted text from the brt table
-        interim_text_list = final_extracted_text_list(brt, all_text)
+        # interim_text_list = final_extracted_text_list(brt, all_text)
 
         # Similarly remove doubly extracted text from the lsd table
-        final_text_list = final_extracted_text_list(lsd, interim_text_list)
+        # final_text_list = final_extracted_text_list(lsd, interim_text_list)
 
         # Filter out the Chinese text from it.
-        chinese_text_data = filter_chinese_text(final_text_list)
+        chinese_text_data = filter_chinese_text(all_text)
 
         if not chinese_text_data:
             raise ValueError("No Chinese text found in the document.")

@@ -33,7 +33,7 @@ def filter_chinese_text(extracted_data):
     # ... (same as your original code)
     extracted_chinese_text_with_location = []
     for item in extracted_data:
-        if _is_likely_chinese(item["text"]):
+        if _is_likely_hebrew(item["text"]):
             extracted_chinese_text_with_location.append(item)
     return extracted_chinese_text_with_location
 
@@ -42,10 +42,11 @@ def filter_chinese_text(extracted_data):
 # ==============================================================================
 # PRIVATE FUNCTION TO CHECK IF A TEXT IS CHINESE OR NOT
 # ==============================================================================
-def _is_likely_chinese(text):
-    # ... (same as your original code)
-    chinese_chars = re.findall(r'[\u4e00-\u9fff]', text)
-    return len(chinese_chars) > 0
+def _is_likely_hebrew(text):
+    """Checks if a string contains any Hebrew characters."""
+    # The Unicode range for the Hebrew block is \u0590 to \u05FF
+    hebrew_chars = re.findall(r'[\u0590-\u05FF]', text)
+    return len(hebrew_chars) > 0
 
 
 # ==============================================================================

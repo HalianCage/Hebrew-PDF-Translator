@@ -9,9 +9,9 @@ from model import model as translation_model
 logger = logging.getLogger(__name__)
 
 
-def translate_chinese_to_english(chinese_text_data):
+def translate_hebrew_to_english(hebrew_text_data):
     translated_data = []
-    for i, item in enumerate(chinese_text_data):
+    for i, item in enumerate(hebrew_text_data):
         chinese_text = item["text"]
         try:
             input_ids = translation_model.tokenizer(chinese_text, return_tensors="pt").input_ids

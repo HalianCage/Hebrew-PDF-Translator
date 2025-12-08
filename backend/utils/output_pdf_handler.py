@@ -37,7 +37,7 @@ def prepare_display_data(translated_data):
     Enrich translated items by deciding whether to display full text or an abbreviation,
     and collect legend terms for any abbreviated entries.
 
-    Input: translated_data (list of dicts from translate_chinese_to_english)
+    Input: translated_data (list of dicts from translate_hebrew_to_english)
     Output: (enriched_translated_data, legend_terms)
     - enriched_translated_data: list with additional 'display_text' per item
     - legend_terms: dict mapping {code: full term}

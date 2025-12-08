@@ -26,7 +26,7 @@ class App(ctk.CTk):
         super().__init__(*args, **kwargs)
 
         # --- Window Setup ---
-        self.title("Chinese CAD Translator") # Removed "Dev Mode"
+        self.title("Hebrew Technical PDF Translator") # Removed "Dev Mode"
         self.geometry("450x380")
         self.resizable(False, False)
         
@@ -43,7 +43,7 @@ class App(ctk.CTk):
 
         self.label_title = ctk.CTkLabel(
             self.main_frame, 
-            text="CAD Drawing Translator", 
+            text="Hebrew Technical PDF Translator", 
             font=ctk.CTkFont(size=20, weight="bold")
         )
         self.label_title.pack(pady=(15, 20))

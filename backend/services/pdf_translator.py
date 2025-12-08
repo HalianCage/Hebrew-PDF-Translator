@@ -10,8 +10,8 @@ import os
 # Import isolated modules
 from core import job_state as job_state
 from utils.legends_util import create_legend_pdf_page
-from utils.text_extraction import extract_text_with_location, filter_chinese_text, extract_table_cells, final_extracted_text_list
-from utils.translation import translate_chinese_to_english
+from utils.text_extraction import extract_text_with_location, filter_hebrew_text, extract_table_cells, final_extracted_text_list
+from utils.translation import translate_hebrew_to_english
 from utils.output_pdf_handler import prepare_display_data, create_translated_doc_in_memory, assemble_final_pdf
 
 logger = logging.getLogger(__name__)
@@ -44,13 +44,13 @@ def run_translation_task(job_id: str, pdf_path: str):
         # final_text_list = final_extracted_text_list(lsd, interim_text_list)
 
         # Filter out the Chinese text from it.
-        chinese_text_data = filter_chinese_text(all_text)
+        hebrew_text_data = filter_hebrew_text(all_text)
 
-        if not chinese_text_data:
+        if not hebrew_text_data:
             raise ValueError("No Chinese text found in the document.")
 
         job_state.update_job_status(job_id, "translating")
-        translated_data = translate_chinese_to_english(chinese_text_data)
+        translated_data = translate_hebrew_to_english(hebrew_text_data)
         
         enriched_data, legend_terms = prepare_display_data(translated_data)
 

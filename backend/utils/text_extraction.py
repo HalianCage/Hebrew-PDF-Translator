@@ -14,7 +14,7 @@ def extract_text_with_location(doc):
     extracted_text_with_location = []
     for page_num in range(doc.page_count):
         page = doc[page_num]
-        words = page.get_text("words")
+        words = page.get_text("blocks")
         for word in words:
             extracted_text_with_location.append({
                 "text": word[4],
@@ -23,13 +23,21 @@ def extract_text_with_location(doc):
             })
     return extracted_text_with_location
 
+'''
+For Implementing OCR into the current work flow, follow the following tentative steps/points:
+1. The implementation would occur in the 'extract_text_with_location' function above.
+2. Pass on the current direct vector text extraction to a helper function, and add a separate similar function for text extraction using OCR.
+3. Both these helper private functions will pass their outputs to the function above, which will then do the work of comparison, verification, and finalization of text list.
+4. Continue the further processes as usual without any changes.
+Q. Identify the issue that might arise with PDF coordinate system and image coordinate system mismatch
+'''
 
 
 
 # ==============================================================================
-# FUNCTION TO FILTER OUT THE CHINESE TEXT FROM ALL EXTRACTED TEXT
+# FUNCTION TO FILTER OUT THE HEBREW TEXT FROM ALL EXTRACTED TEXT
 # ==============================================================================
-def filter_chinese_text(extracted_data):
+def filter_hebrew_text(extracted_data):
     # ... (same as your original code)
     extracted_chinese_text_with_location = []
     for item in extracted_data:

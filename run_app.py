@@ -2,6 +2,7 @@ import threading
 import uvicorn
 import sys
 import os
+import startup
 
 
 # --- Step 1: Add project subfolders to the Python path ---

@@ -29,7 +29,7 @@ def run_translation_task(job_id: str, pdf_path: str):
         job_state.update_job_status(job_id, "extracting")
 
         # Extract all text using fitz
-        all_text = extract_text_with_location(doc)
+        all_text = extract_text_with_location(pdf_path)
 
         # Extract bottom right table text using pdfplumber
         # brt = extract_table_cells(pdf_bytes, 665, 665, 1180, 830)
@@ -45,6 +45,8 @@ def run_translation_task(job_id: str, pdf_path: str):
 
         # Filter out the Chinese text from it.
         hebrew_text_data = filter_hebrew_text(all_text)
+
+        # logger.info(f"testing the obtained filtered hebrew text {hebrew_text_data}")
 
         if not hebrew_text_data:
             raise ValueError("No Chinese text found in the document.")

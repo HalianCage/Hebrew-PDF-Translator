@@ -83,7 +83,7 @@ def create_translated_doc_in_memory(doc, enriched_translated_data):
                     leftover = -1
                     font_size = best_fsize
 
-                    while leftover<0 and font_size >= 4:
+                    while leftover<0 and font_size >= 2:
 
                         # Draw the rectangle
                         output_page.draw_rect(original_bbox, color=(1, 1, 1), fill=(1, 1, 1), overlay=True, )
@@ -91,7 +91,7 @@ def create_translated_doc_in_memory(doc, enriched_translated_data):
                         # Insert the text
                         leftover = output_page.insert_textbox(
                             original_bbox, display_text, fontsize=font_size, fontname="helv",
-                            color=(0, 0, 0), align=fitz.TEXT_ALIGN_CENTER, overlay=True
+                            color=(0, 0, 0), align=fitz.TEXT_ALIGN_RIGHT, overlay=True
                         )
 
                         font_size -= 1

@@ -6,6 +6,8 @@ backend/model/__pycache__
 backend/services/__pycache__
 backend/utils/__pycache__
 frontend/__pycache__
+__pycache__
+.vscode
 
 build/
 dist/
@@ -14,4 +16,4 @@ he-en-model/
 
 download-helsinki-model.py
 backend.log
-steps.txt
+tasks.txt

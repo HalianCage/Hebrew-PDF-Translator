@@ -70,8 +70,9 @@ def create_translated_doc_in_memory(doc, enriched_translated_data):
     output_doc = fitz.open()
     for page_num in range(doc.page_count):
         page = doc[page_num]
+        page_img = page.get_pixmap(dpi=300, alpha=False)
         output_page = output_doc.new_page(width=page.rect.width, height=page.rect.height)
-        output_page.show_pdf_page(page.rect, doc, page_num)
+        output_page.insert_image(output_page.rect, pixmap=page_img)
         for item in enriched_translated_data:
             if item["page"] == page_num:
                 original_bbox = fitz.Rect(item["bbox"])

@@ -66,6 +66,9 @@ def _process_hebrew_lines_ocr(pdf_path):
     # Configuration for Hebrew
     custom_config = '--oem 3 --psm 11 -l heb+eng'
 
+    if POPPLER_PATH is None:
+        raise Exception("Poppler path not initialized")
+
     try:
         images = convert_from_path(pdf_path, dpi=300, poppler_path=POPPLER_PATH)
     except Exception as e:

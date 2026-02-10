@@ -2,7 +2,17 @@ import threading
 import uvicorn
 import sys
 import os
-import startup
+import logging
+
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    filename="working.log",
+    filemode="a"
+)
+
+logger = logging.getLogger(__name__)
 
 
 # --- Step 1: Add project subfolders to the Python path ---
@@ -22,8 +32,6 @@ sys.path.append(os.path.join(base_path, 'backend'))
 
 # --- Step 2: Import the App Objects ---
 try:
-
-    from backend.main import logger
 
     logger.info("Trying to import from backend")
     # Import the FastAPI 'app' object from your backend

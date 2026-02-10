@@ -3,7 +3,7 @@ import sys
 from pathlib import Path
 
 # ---------- EDIT THIS to match your project root ----------
-PROJECT_ROOT = Path(r"D:\Personal Projects\Hebrew-CAD-Translation-Tool").resolve()
+PROJECT_ROOT = Path(r"D:\Projects-nd-all\Personal Projects\PDF Translation Tool\Hebrew-translation-app\Hebrew-CAD-Translation-Tool").resolve()
 # ---------------------------------------------------------
 
 def collect_folder_as_tuples(src_folder: Path, dest_prefix: str):

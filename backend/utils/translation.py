@@ -1,19 +1,18 @@
 # ==============================================================================
 # TRANSLATION TASKS FILE
 # ==============================================================================
-
-
 import logging
 from model import model as translation_model
 
 logger = logging.getLogger(__name__)
 
-
 def translate_hebrew_to_english(hebrew_text_data):
 
     # logger.info(f"testing if the extracted text data reaches to translation function safely {hebrew_text_data}")
-
+    
+    # Variable to hold the final output
     translated_data = []
+
     for i, item in enumerate(hebrew_text_data):
         hebrew_text = item["text"]
         try:

@@ -1,188 +1,85 @@
 # ==============================================================================
 # TEXT EXTRACTION FUNCTIONS
 # ==============================================================================
-
-from startup import POPPLER_PATH
 import re
-import os
 import pdfplumber
 import io
 import logging
-from pdf2image import convert_from_path
-from PIL import ImageFont, ImageDraw
-import pytesseract
-from pytesseract import Output
-import numpy as np
-import cv2
+import tempfile
+from pathlib import Path
+import fitz
+from ppocrv5_onnx.run_ocr import run_ocr_on_page
 
 logger = logging.getLogger(__name__)
 
-# tesseract path set up for pytesseract moved to startup.py
 
 # ==============================================================================
-# FUNCTION TO EXTRACT ALL VECTOR TEXT FROM THE DOC
+# FUNCTION TO EXTRACT ALL TEXT FROM THE DOC
 # ==============================================================================
 '''
 The extract_text_with_location function has been kept separate from the OCR function even though it does nothing other than simply just call the OCR function and pass on its output ahead, is to allow easy support into integrating methods other than OCR for text extraction, which could be integrated here and the final output created from the combination of them.
 '''
-def extract_text_with_location(doc):
+# def extract_text_with_location(pdf_path):
 
-    # print("inside extract_text_with_location function...")
+#     # print("inside extract_text_with_location function...")
 
-    extracted_text_with_location = _process_hebrew_lines_ocr(doc)
+#     extracted_text_with_location = _process_hebrew_lines_ocr(pdf_path)
 
-    logger.info("OCR process is complete; Moving ahead...")
+#     logger.info("OCR process is complete; Moving ahead...")
 
-    # for page_num in range(doc.page_count):
-    #     page = doc[page_num]
-    #     words = page.get_text("blocks")
-    #     for word in words:
-    #         extracted_text_with_location.append({
-    #             "text": word[4],
-    #             "bbox": (word[0]-2, word[1]-2, word[2]+2, word[3]+2),
-    #             "page": page_num
-    #         })
 
-    return extracted_text_with_location
+#     return extracted_text_with_location
 
-'''
-For Implementing OCR into the current work flow, follow the following tentative steps/points:
-1. The implementation would occur in the 'extract_text_with_location' function above.
-2. Pass on the current direct vector text extraction to a helper function, and add a separate similar function for text extraction using OCR.
-3. Both these helper private functions will pass their outputs to the function above, which will then do the work of comparison, verification, and finalization of text list.
-4. Continue the further processes as usual without any changes.
-Q. Identify the issue that might arise with PDF coordinate system and image coordinate system mismatch
-'''
+
 
 # ==============================================================================
 # FUNCTION TO EXTRACT TEXT USING OCR
 # ==============================================================================
+def extract_text_with_location(doc):
+    logger.info(f"Processing pdf inside the extract_text_with_location function...")
 
-def _process_hebrew_lines_ocr(pdf_path):
-    # logger.info(f"Processing: {pdf_path} inside the process_hebrew_lines function...")
-
+    # Variables initialized
     extracted_text_with_location = []
+    pdf_text_count = 0
 
-    # Configuration for Hebrew
-    custom_config = '--oem 3 --psm 11 -l heb+eng'
+    # Creating a temporary directory to store the PDF page images created using pixmap function
+    with tempfile.TemporaryDirectory() as tempdir:
+        tempdir = Path(tempdir)
 
-    if POPPLER_PATH is None:
-        raise Exception("Poppler path not initialized")
+        for page_num in range(doc.page_count):
+            
+            logger.info("Inside image loop, creating temp image for page No.:", page_num)
 
-    try:
-        images = convert_from_path(pdf_path, dpi=300, poppler_path=POPPLER_PATH)
-    except Exception as e:
-        print(f"Error: {e}")
-        return
+            page = doc[page_num]
 
-    # Load Hebrew Font (Fall back if missing)
-    # try:
-    #     # NEED TO ACTUALLY INSTALL THE FONT IF REQUIRED
-    #     font_path = "/usr/share/fonts/truetype/freefont/FreeSansBold.ttf"
-    #     font = ImageFont.truetype(font_path, 20)
-    # except:
-    #     font = ImageFont.load_default()
+            page_image = page.get_pixmap(dpi=200, alpha=False) # type: ignore[attr-defined]
 
-    for page_num, page_image in enumerate(images):
-        logger.info(f"\n--- Page {page_num + 1} ---")
-        img_np = np.array(page_image)
+            img_path = tempdir / f'page_{page_num}.png'
+            page_image.save(img_path)
 
-        # 1. Get Raw Data
-        try:
-            data = pytesseract.image_to_data(img_np, output_type=Output.DICT, config=custom_config)
-            # print(data["text"])
-        except Exception as e:
-            print(f"Failed to perform OCR on page number {page_num}; continuing to next page")
-            continue
-        '''
-        Output data format : 
-        {
-            'level':    [5, 5],
-            'page_num': [1, 1],
-            'block_num':[1, 1],
-            'par_num':  [1, 1],
-            'line_num': [1, 1],
-            'word_num': [1, 2],
-            'left':     [34, 120],
-            'top':      [50, 50],
-            'width':    [60, 80],
-            'height':   [20, 20],
-            'conf':     [96, 92],
-            'text':     ['Hello', 'World']
-        }
-        '''
+            logger.info("image saved successfully. Running Paddle OCR...")
 
-        # 2. Group Words into Lines
-        lines = {} # Key: (block_num, par_num, line_num) -> Value: {text, x, y, w, h}
+            ocr_output = run_ocr_on_page(img_path, page_num)
 
-        n_boxes = len(data['text'])
-        for k in range(n_boxes):
-            # Filter low confidence noise
-            if int(data['conf'][k]) < 40: continue
+            logger.info(f"Paddle + Tesseract Frankenstein successful for page No. {page_num}! No. of text boxes detected: {ocr_output[1]}")
 
-            text = data['text'][k].strip()
-            if not text: continue
+            pdf_text_count += ocr_output[1]
 
-            # Create a unique key for this specific line on the page
-            # We group by Block, Paragraph, AND Line number
-            line_key = (data['block_num'][k], data['par_num'][k], data['line_num'][k])
+            extracted_text_with_location.extend(ocr_output[0])
 
-            x, y, w, h = (data['left'][k], data['top'][k], data['width'][k], data['height'][k])
-
-            if line_key not in lines:
-                # Start a new line entry
-                lines[line_key] = {
-                    "text": [text],
-                    "x_min": x,
-                    "y_min": y,
-                    "x_max": x + w,
-                    "y_max": y + h
-                }
-            else:
-                # Merge into existing line
-                lines[line_key]["text"].append(text)
-                # Expand the bounding box to include this new word
-                lines[line_key]["x_min"] = min(lines[line_key]["x_min"], x)
-                lines[line_key]["y_min"] = min(lines[line_key]["y_min"], y)
-                lines[line_key]["x_max"] = max(lines[line_key]["x_max"], x + w)
-                lines[line_key]["y_max"] = max(lines[line_key]["y_max"], y + h)
-
-
-        # 3. Convert grouped lines into the requested output format
-        # Sort lines top-to-bottom then left-to-right for stable ordering
-        sorted_lines = sorted(
-            lines.values(),
-            key=lambda v: (v['y_min'], v['x_min'])
-        )
-
-        # logger.info(f"Sorted lines data: {sorted_lines}")
-
-        scale = 72/300 # constant to scale pixel coordinates to pdf points
-
-        for ln in sorted_lines:
-            joined_text = " ".join(ln['text'])  # keep original word order
-            x1, y1, x2, y2 = ln['x_min']*scale, ln['y_min']*scale, ln['x_max']*scale, ln['y_max']*scale
-            extracted_text_with_location.append({
-                "text": joined_text,
-                "bbox": (x1, y1, x2, y2),
-                "page": page_num
-            })
-
-    
     return extracted_text_with_location
-
 
 
 # ==============================================================================
 # FUNCTION TO FILTER OUT THE HEBREW TEXT FROM ALL EXTRACTED TEXT
 # ==============================================================================
 def filter_hebrew_text(extracted_data):
-    # ... (same as your original code)
-    extracted_chinese_text_with_location = []
+    
+    extracted_text_with_location = []
     for item in extracted_data:
         if _is_likely_hebrew(item["text"]):
-            extracted_chinese_text_with_location.append(item)
-    return extracted_chinese_text_with_location
+            extracted_text_with_location.append(item)
+    return extracted_text_with_location
 
 
 

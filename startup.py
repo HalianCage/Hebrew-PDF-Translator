@@ -3,6 +3,8 @@ import os
 import sys
 from pathlib import Path
 import pytesseract
+from ppocrv5_onnx.ocr_engine import OCREngine
+
 
 def get_onefile_base() -> Path | None:
     """Return extraction base for onefile or None if not frozen."""
@@ -55,5 +57,7 @@ def configure_bundled_binaries_onefile():
     # return poppler path for pdf2image
     return str(poppler_bin) if poppler_bin.exists() else None
 
+
 # run at import
 POPPLER_PATH = configure_bundled_binaries_onefile()
+ocr = OCREngine()

@@ -42,8 +42,8 @@ hemodel_tuples = collect_folder_as_tuples(hemodel_src, "he-en-model")
 # Build final binaries and datas lists
 # NOTE: binaries is for executables/DLLs; datas is for non-executable files.
 # PyInstaller accepts both as (src, dest) tuples in the spec.
-binaries = poppler_tuples + tesseract_tuples   # poppler DLLs & executables, tesseract exe/DLLs
-datas = hemodel_tuples + tessdata_tuples      # model + tessdata files
+binaries = poppler_tuples + tesseract_tuples                                   # poppler DLLs & executables, tesseract exe/DLLs
+datas = hemodel_tuples + tessdata_tuples + [("ppocrv5_onnx", "ppocrv5_onnx")]  # model + tessdata files + paddleOCR files
 
 # Hidden imports (keep your list)
 hiddenimports = [
